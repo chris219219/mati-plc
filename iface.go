@@ -41,6 +41,16 @@ func CreateSerialBind(name string, device string, baudrate uint32) SerialBind {
 	return res
 }
 
+func (iface IFace) AddIP4Bind(bind IP4Bind) IFace {
+	iface.IP4Binds = append(iface.IP4Binds, bind)
+	return iface
+}
+
+func (iface IFace) AddSerialBind(bind SerialBind) IFace {
+	iface.SerialBinds = append(iface.SerialBinds, bind)
+	return iface
+}
+
 func (iface IFace) String() string {
 	res := "Interface: " + iface.Name + "\n"
 	for _, b := range iface.IP4Binds {
