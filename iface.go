@@ -1,9 +1,12 @@
 package main
 
-import "net"
-import "strconv"
+import (
+	"net"
+	"strconv"
+	"github.com/vishvananda/netlink"
+)
 
-type IP4Bind struct {
+type IPBind struct {
 	Name      string
 	IP        net.IP
 	Mask      net.IPMask
@@ -19,12 +22,47 @@ type SerialBind struct {
 
 type IFace struct {
 	Name        string
-	IP4Binds    []IP4Bind
+	IPBinds    []IPBind
 	SerialBinds []SerialBind
 }
 
-func CreateIP4Bind(name string, ip string, mask string, gateway string, broadcast string) IP4Bind {
-	var res IP4Bind
+func GetCurrIFaces() ([]IFace, error) {
+	// get current interfaces from netlink
+	links, err := netlink.LinkList()
+	if (err != nil) {
+		return nil, err
+	}
+
+	var ifaces []IFace
+
+	// create an iface for each link
+	for _, link := range links {
+		var iface IFace;
+		iface.Name = link.Attrs().Name
+
+		netlinkaddrs, err := netlink.AddrList(link, netlink.FAMILY_V4)
+		if (err != nil) {
+			return nil, err
+		}
+
+		// create an ipbind for each address in a link
+		for _, netlinkaddr := range netlinkaddrs {
+			var ipbind IPBind;
+			ipbind.Name = netlinkaddr.String()
+			ipbind.IP = netlinkaddr.IP
+			ipbind.Mask = netlinkaddr.Mask
+			ipbind.Broadcast = netlinkaddr.Broadcast
+			iface = iface.AddIPBind(ipbind)
+		}
+
+		ifaces = append(ifaces, iface)
+	}
+
+	return ifaces, nil
+}
+
+func CreateIPBind(name string, ip string, mask string, gateway string, broadcast string) IPBind {
+	var res IPBind
 	res.Name = name
 	res.IP = net.ParseIP(ip)
 	res.Mask = net.IPMask(net.ParseIP(mask))
@@ -41,8 +79,8 @@ func CreateSerialBind(name string, device string, baudrate uint32) SerialBind {
 	return res
 }
 
-func (iface IFace) AddIP4Bind(bind IP4Bind) IFace {
-	iface.IP4Binds = append(iface.IP4Binds, bind)
+func (iface IFace) AddIPBind(bind IPBind) IFace {
+	iface.IPBinds = append(iface.IPBinds, bind)
 	return iface
 }
 
@@ -53,7 +91,7 @@ func (iface IFace) AddSerialBind(bind SerialBind) IFace {
 
 func (iface IFace) String() string {
 	res := "Interface: " + iface.Name + "\n"
-	for _, b := range iface.IP4Binds {
+	for _, b := range iface.IPBinds {
 		res +=
 			"  IP Bind: " + b.Name + "\n" +
 				"    IP: " + b.IP.String() + "\n" +
