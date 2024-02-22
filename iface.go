@@ -4,6 +4,7 @@ import (
 	"net"
 	//"strconv"
 	"github.com/vishvananda/netlink"
+	"go.bug.st/serial"
 )
 
 type IPBind struct {
@@ -14,16 +15,45 @@ type IPBind struct {
 	Broadcast net.IP
 }
 
-type SerialConn struct {
-	Name     string
-	Device   string
-	Baudrate uint32
-}
-
 type IFace struct {
 	Name        string
 	IPBinds    []IPBind
 }
+
+type SerialConn struct {
+	Name     string
+	Device   string
+	Baudrate uint32
+	IsOpen   bool
+	port     serial.Port
+}
+
+func CreateSerialConn(name string, device string, baudrate uint32) SerialConn {
+	var conn SerialConn
+	conn.Name = name
+	conn.Device = device
+	conn.Baudrate = baudrate
+	conn.IsOpen = false
+	conn.port = nil
+	return conn
+}
+
+func (conn SerialConn) ConnectSerial() (SerialConn, error) {
+	mode := &serial.Mode { BaudRate: int(conn.Baudrate) }
+	port, err := serial.Open(conn.Device, mode)
+	if (err != nil) {
+		return conn, nil
+	}
+	conn.port = port
+	conn.IsOpen = true
+	return conn, nil
+}
+
+/*
+func (conn SerialConn) CloseSerial() (SerialConn, error) {
+
+}
+*/
 
 func GetCurrIFaces() ([]IFace, error) {
 	// get current interfaces from netlink
