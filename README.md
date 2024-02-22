@@ -42,3 +42,6 @@ A lightweight alternative to encoding/json in Go's standard library.
 
 #### github.com/vishvananda/netlink
 Only for Linux, allows for manipulation of Linux interfaces.
+
+#### go.bug.st/serial
+Simple serial connection library.
