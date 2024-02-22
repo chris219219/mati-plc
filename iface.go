@@ -2,7 +2,7 @@ package main
 
 import (
 	"net"
-	"strconv"
+	//"strconv"
 	"github.com/vishvananda/netlink"
 )
 
@@ -14,7 +14,7 @@ type IPBind struct {
 	Broadcast net.IP
 }
 
-type SerialBind struct {
+type SerialConn struct {
 	Name     string
 	Device   string
 	Baudrate uint32
@@ -23,7 +23,6 @@ type SerialBind struct {
 type IFace struct {
 	Name        string
 	IPBinds    []IPBind
-	SerialBinds []SerialBind
 }
 
 func GetCurrIFaces() ([]IFace, error) {
@@ -32,7 +31,6 @@ func GetCurrIFaces() ([]IFace, error) {
 	if (err != nil) {
 		return nil, err
 	}
-
 	var ifaces []IFace
 
 	// create an iface for each link
@@ -71,21 +69,8 @@ func CreateIPBind(name string, ip string, mask string, gateway string, broadcast
 	return res
 }
 
-func CreateSerialBind(name string, device string, baudrate uint32) SerialBind {
-	var res SerialBind
-	res.Name = name
-	res.Device = device
-	res.Baudrate = baudrate
-	return res
-}
-
 func (iface IFace) AddIPBind(bind IPBind) IFace {
 	iface.IPBinds = append(iface.IPBinds, bind)
-	return iface
-}
-
-func (iface IFace) AddSerialBind(bind SerialBind) IFace {
-	iface.SerialBinds = append(iface.SerialBinds, bind)
 	return iface
 }
 
@@ -98,12 +83,6 @@ func (iface IFace) String() string {
 				"    Subnet Mask: " + net.IP(b.Mask).String() + "\n" +
 				"    Gateway: " + b.Gateway.String() + "\n" +
 				"    Broadcast: " + b.Broadcast.String() + "\n"
-	}
-	for _, b := range iface.SerialBinds {
-		res +=
-			"  Serial Bind: " + b.Name + "\n" +
-				"    Device: " + b.Device + "\n" +
-				"    Baudrate: " + strconv.FormatUint(uint64(b.Baudrate), 10) + "\n"
 	}
 	return res
 }
