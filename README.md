@@ -31,8 +31,8 @@ change its interface settings.
 This project is for the PLC (Programmable Logic Controller), AKA the controller.
 It is written in Go to make it more maintainable and easy to read.
 
-Entry Point: main.go
-Interface Code: iface.go
+Entry Point: main.go<br>
+Interface Code: iface.go<br>
 WIP
 
 ## Dependencies
