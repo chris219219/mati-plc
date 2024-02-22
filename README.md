@@ -35,7 +35,7 @@ Entry Point: main.go
 Interface Code: iface.go
 WIP
 
-### Dependencies
+## Dependencies
 
 #### github.com/goccy/go-json
 A lightweight alternative to encoding/json in Go's standard library.
