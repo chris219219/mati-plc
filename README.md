@@ -37,8 +37,8 @@ WIP
 
 ## Dependencies
 
-#### github.com/goccy/go-json
+#### <github.com/goccy/go-json>
 A lightweight alternative to encoding/json in Go's standard library.
 
-#### github.com/vishvananda/netlink
+#### <github.com/vishvananda/netlink>
 Only for Linux, allows for manipulation of Linux interfaces.
